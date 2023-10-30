@@ -15,3 +15,9 @@ class UserModel(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PicnicRegistrationModel(BaseModel):
+    id: int
+    user_surname: str
+    picnic_id: int

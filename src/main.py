@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Query
 from database import (Base, City, Picnic, PicnicRegistration, Session, User,
                       engine)
 from external_requests import CheckCityExisting, GetWeatherRequest
-from models import RegisterUserRequest, UserModel
+from models import PicnicRegistrationModel, RegisterUserRequest, UserModel
 
 app = FastAPI()
 
@@ -119,12 +119,21 @@ def picnic_add(city_id: int = None, datetime: dt.datetime = None):
     }
 
 
-@app.get('/picnic-register/', summary='Picnic Registration', tags=['picnic'])
-def register_to_picnic(*_, **__,):
+@app.post('/picnic-register/', summary='Picnic Registration',
+          tags=['picnic'], response_model=PicnicRegistrationModel)
+def register_to_picnic(user_id: int, picnic_id: int):
     """
     Регистрация пользователя на пикник
     (Этот эндпойнт необходимо реализовать в процессе выполнения тестового задания)
     """
     # TODO: Сделать логику
-    return ...
+    pr = PicnicRegistration(user_id=user_id, picnic_id=picnic_id)
+    s = Session()
+    s.add(pr)
+    s.commit()
 
+    return {
+        'id': pr.id,
+        "user_surname": Session().query(User).filter(User.id == user_id).first().surname,
+        "picnic_id": Session().query(Picnic).filter(Picnic.id == picnic_id).first().city_id
+    }
