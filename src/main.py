@@ -101,16 +101,20 @@ def all_picnics(datetime: dt.datetime = Query(default=None, description='Вре�
     } for pic in picnics]
 
 
-@app.get('/picnic-add/', summary='Picnic Add', tags=['picnic'])
+@app.post('/picnic-add/', summary='Picnic Add', tags=['picnic'])
 def picnic_add(city_id: int = None, datetime: dt.datetime = None):
+    """
+    Добавление пикника
+    """
     p = Picnic(city_id=city_id, time=datetime)
     s = Session()
     s.add(p)
     s.commit()
-
+ 
     return {
         'id': p.id,
-        'city': Session().query(City).filter(City.id == p.id).first().name,
+        'city': Session().query(City).filter(City.id == p.city_id).first().name,
+        # Исправлена ошибка (Изменено p.id на city_id)
         'time': p.time,
     }
 
