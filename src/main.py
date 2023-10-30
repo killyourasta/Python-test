@@ -1,6 +1,10 @@
 import datetime as dt
+from typing import List
+
 from fastapi import FastAPI, HTTPException, Query
-from database import engine, Session, Base, City, User, Picnic, PicnicRegistration
+
+from database import (Base, City, Picnic, PicnicRegistration, Session, User,
+                      engine)
 from external_requests import CheckCityExisting, GetWeatherRequest
 from models import RegisterUserRequest, UserModel
 
@@ -38,11 +42,16 @@ def cities_list(q: str = Query(description="Название города", defa
     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
 
 
-@app.post('/users-list/', summary='')
-def users_list():
+@app.get('/users-list/', summary='Get Users')
+def users_list(q: List[int] = Query([1, 150],
+                                    description='Возрастной диапазон пользователей')):
     """
     Список пользователей
     """
+    users = []
+    if q:
+        return Session().query(User).filter(User.age.between(q[0], q[1])).all()
+ 
     users = Session().query(User).all()
     return [{
         'id': user.id,

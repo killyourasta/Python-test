@@ -1,6 +1,8 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, String,
+                        create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import relationship, sessionmaker
+
 from external_requests import GetWeatherRequest
 
 # Создание сессии
