@@ -7,7 +7,7 @@ from models import RegisterUserRequest, UserModel
 app = FastAPI()
 
 
-@app.get('/create-city/', summary='Create City', description='Создание города по его названию')
+@app.post('/create-city/', summary='Create City', description='Создание города по его названию')
 def create_city(city: str = Query(description="Название города", default=None)):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
@@ -25,12 +25,15 @@ def create_city(city: str = Query(description="Название города", d
     return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather}
 
 
-@app.post('/get-cities/', summary='Get Cities')
+@app.get('/get-cities/', summary='Get Cities')
 def cities_list(q: str = Query(description="Название города", default=None)):
     """
     Получение списка городов
     """
-    cities = Session().query(City).all()
+    if q:
+        cities = Session().query(City).filter(City.name == q)
+    else:
+        cities = Session().query(City).all()
 
     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
 
