@@ -3,7 +3,7 @@ from sqlalchemy import (Column, DateTime, ForeignKey, Integer, String,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
-from external_requests import GetWeatherRequest
+from external_requests import WeatherAPI
 
 # Создание сессии
 SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
@@ -28,8 +28,8 @@ class City(Base):
         """
         Возвращает текущую погоду в этом городе
         """
-        r = GetWeatherRequest()
-        weather = r.get_weather(self.name)
+        r = WeatherAPI()
+        weather = r.get_city_weather(self.name)
         return weather
 
     def __repr__(self):

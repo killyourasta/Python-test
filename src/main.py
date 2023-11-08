@@ -1,11 +1,10 @@
 import datetime as dt
-from typing import List
 
+from typing import List
 from fastapi import FastAPI, HTTPException, Query
 
-from database import (Base, City, Picnic, PicnicRegistration, Session, User,
-                      engine)
-from external_requests import CheckCityExisting, GetWeatherRequest
+from database import (City, Picnic, PicnicRegistration, Session, User)
+from external_requests import WeatherAPI
 from models import PicnicRegistrationModel, RegisterUserRequest, UserModel
 
 app = FastAPI()
@@ -15,8 +14,8 @@ app = FastAPI()
 def create_city(city: str = Query(description="Название города", default=None)):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
-    check = CheckCityExisting()
-    if not check.check_existing(city):
+    check = WeatherAPI()
+    if not check.check_city_exists(city):
         raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
 
     city_object = Session().query(City).filter(City.name == city.capitalize()).first()
@@ -51,7 +50,7 @@ def users_list(q: List[int] = Query([1, 150],
     users = []
     if q:
         return Session().query(User).filter(User.age.between(q[0], q[1])).all()
- 
+
     users = Session().query(User).all()
     return [{
         'id': user.id,
@@ -110,7 +109,7 @@ def picnic_add(city_id: int = None, datetime: dt.datetime = None):
     s = Session()
     s.add(p)
     s.commit()
- 
+
     return {
         'id': p.id,
         'city': Session().query(City).filter(City.id == p.city_id).first().name,
